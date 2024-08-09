@@ -4,12 +4,36 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import utils as np_utils
 from clearml import Task
+import random
+import string
 
-task = Task.init(project_name="test",
+
+def generate_large_file(file_path:str, target_size_in_mb:int):
+    # Convert the size from MB to bytes
+    target_size_in_bytes = target_size_in_mb * 1024 * 1024
+
+    # Open the file in write mode
+    with open(file_path, 'w') as f:
+        current_size = 0
+        while current_size < target_size_in_bytes:
+            # Generate a random string of 1024 characters
+            random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=1024)) + '\n'
+            f.write(random_string)
+            current_size += len(random_string)
+
+    print(f"File {file_path} generated with size approximately {target_size_in_mb} MB")
+
+
+# Create large file in repo to be tracked and cause ClearML to hang when logging tensorboard images
+file_path = "large_random_file.txt"
+target_size_in_mb = 500
+generate_large_file(file_path, target_size_in_mb)
+
+task = Task.init(project_name="CLEARMLtest",
                  task_name="CLEARML Example",
                  continue_last_task=False,
                  auto_connect_streams=True,
-                 auto_resource_monitoring=False)
+                 auto_resource_monitoring=True)
 
 # Train a simple deep NN on the MNIST dataset.
 # Gets to 98.40% test accuracy after 20 epochs
@@ -80,8 +104,8 @@ random_image_logger = RandomImageLogger(output_folder)
 history = model.fit(X_train,
                     Y_train,
                     batch_size=128,
-                    epochs=60,
-                    callbacks=[board, model_store],
+                    epochs=40,
+                    callbacks=[board, model_store, random_image_logger],
                     verbose=1,
                     validation_data=(X_test, Y_test))
 score = model.evaluate(X_test, Y_test, verbose=0)

@@ -1,0 +1,1 @@
+example file tracked by git, will be overwritten to be larger by script
