@@ -26,6 +26,7 @@ def generate_large_file(file_path:str, target_size_in_mb:int):
 
 # Create large file in repo to be tracked and cause ClearML to hang when logging tensorboard images
 file_path = "large_random_file.txt"
+print("Modifying {} to be a large git diff".format(file_path))
 target_size_in_mb = 500
 generate_large_file(file_path, target_size_in_mb)
 
@@ -104,7 +105,7 @@ random_image_logger = RandomImageLogger(output_folder)
 history = model.fit(X_train,
                     Y_train,
                     batch_size=128,
-                    epochs=40,
+                    epochs=20,
                     callbacks=[board, model_store, random_image_logger],
                     verbose=1,
                     validation_data=(X_test, Y_test))
